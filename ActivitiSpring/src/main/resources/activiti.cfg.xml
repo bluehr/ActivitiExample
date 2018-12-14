@@ -14,7 +14,10 @@
         <!--流程引擎名称(使用ProcessEngines.getDefaultProcessEngine()方法时请不要配置流程引擎名称)-->
         <property name="processEngineName" value="MyProcessEngine"/>
         <property name="dataSource" ref="dataSource"/>
-        <!--数据库表策略-->
+        <!-- 声明数据库脚本更新策略，和hibernate的机制类似。取值如下：
+        false :什么都不做
+        true: 当activiti的表不存在时自动创建，当Activiti的jar文件中定义的版本号与数据库中记录的版本号不一致时会自动执行相应的升级脚本，并且会记录升级过程
+        create-drop: 创建引擎时执行初始化脚本，引擎销毁时执行删除数据脚本 -->
         <property name="databaseSchemaUpdate" value="true"/>
     </bean>
 </beans>
