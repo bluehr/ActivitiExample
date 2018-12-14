@@ -2,18 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <!--数据库配置-->
-    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://127.0.0.1:3306/activiti5demo"/>
-        <property name="username" value="root"/>
-        <property name="password" value="123456"/>
-    </bean>
     <!--流程配置器-->
     <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
         <!--流程引擎名称(使用ProcessEngines.getDefaultProcessEngine()方法时请不要配置流程引擎名称)-->
+        <property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/activiti5demo" />
+        <property name="jdbcDriver" value="com.mysql.jdbc.Driver" />
+        <property name="jdbcUsername" value="root" />
+        <property name="jdbcPassword" value="123456" />
         <property name="processEngineName" value="MyProcessEngine"/>
-        <property name="dataSource" ref="dataSource"/>
         <!--
         databaseSchemaUpdate: 设置流程引擎启动和关闭时如何处理数据库表。
         false（默认）：检查数据库表的版本和依赖库的版本， 如果版本不匹配就抛出异常。

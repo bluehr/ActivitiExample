@@ -29,6 +29,7 @@ public class ActivitiEngineTest {
 
     @Test
     public void testEngine() {
+        /*使用Spring来构建这个类 但是真正和Spring整合配置的时候我们还会更改一下配置文件。*/
         ApplicationContext context = new ClassPathXmlApplicationContext(new String[] { "activiti.cfg.xml" });
         ProcessEngineConfiguration processEngineConfiguration = (ProcessEngineConfiguration) context.getBean("processEngineConfiguration");
         ProcessEngine processEngine = processEngineConfiguration.buildProcessEngine();
