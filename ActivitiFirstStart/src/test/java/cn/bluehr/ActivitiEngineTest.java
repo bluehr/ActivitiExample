@@ -101,6 +101,7 @@ public class ActivitiEngineTest {
     @Test
     public void setActivitiRule(){
         ProcessEngine engine = activitiRule.getProcessEngine();
+        //这里不局限于使用activitiRule类获取的引擎，前面所有的方式获取的流程引擎都可以按照如下方式使用
         IdentityService identityService = engine.getIdentityService();
         RepositoryService repositoryService = engine.getRepositoryService();
         RuntimeService runtimeService = engine.getRuntimeService();
