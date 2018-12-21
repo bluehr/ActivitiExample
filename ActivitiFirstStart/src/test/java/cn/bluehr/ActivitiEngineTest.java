@@ -1,9 +1,13 @@
 package cn.bluehr;
 
+import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.IdentityService;
 import org.activiti.engine.ManagementService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.test.ActivitiRule;
@@ -79,18 +83,31 @@ public class ActivitiEngineTest {
         Assert.assertNotNull(engine);
     }
 
+    private void printCurrentEngineProperty(ProcessEngine processEngine){
+        ManagementService managementService = processEngine.getManagementService();
+        Map<String, String> properties = managementService.getProperties();
+        for (String s : properties.keySet()) {
+            System.out.println(s+":"+properties.get(s));
+        }
+    }
+
     @Test
     public void activitiUnitTest(){
         ProcessEngine engine = activitiRule.getProcessEngine();
         System.out.println(engine.getName());
         printCurrentEngineProperty(engine);
     }
-    public void printCurrentEngineProperty(ProcessEngine processEngine){
-        ManagementService managementService = processEngine.getManagementService();
-        Map<String, String> properties = managementService.getProperties();
-        for (String s : properties.keySet()) {
-            System.out.println(s+":"+properties.get(s));
-        }
+
+    @Test
+    public void setActivitiRule(){
+        ProcessEngine engine = activitiRule.getProcessEngine();
+        IdentityService identityService = engine.getIdentityService();
+        RepositoryService repositoryService = engine.getRepositoryService();
+        RuntimeService runtimeService = engine.getRuntimeService();
+        TaskService taskService = engine.getTaskService();
+        FormService formService = engine.getFormService();
+        ManagementService managementService = engine.getManagementService();
+        HistoryService historyService = engine.getHistoryService();
     }
 
 
