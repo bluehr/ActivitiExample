@@ -7,17 +7,22 @@ import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricProcessInstanceQuery;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
 import org.activiti.engine.test.ActivitiRule;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.sound.midi.Soundbank;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,6 +31,7 @@ import java.util.Map;
  * @Description:
  */
 public class ActivitiTest {
+    private static final String LEAVEKEY = "Leave";
 
     @Rule
     public ActivitiRule activitiRule = new ActivitiRule();
@@ -80,5 +86,60 @@ public class ActivitiTest {
         long count = repositoryService.createDeploymentQuery().count();
         System.out.println("部署时间："+deploy.getDeploymentTime());
         Assert.assertEquals(1, count);
+    }
+
+    /**
+     * 启动请假流程
+     */
+    @Test
+    public void startAskLeaveProcess() {
+        //1.通过流程定义ID启动，这个ID就是act_re_procdef的主键ID 例如Leave:1:4
+        //runtimeService.startProcessInstanceById();
+        //2.通过流程定义的Key启动，这个Key是在我们画流程图的时候输入的ID
+        ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(LEAVEKEY);
+        Assert.assertEquals(LEAVEKEY, processInstance.getProcessDefinitionKey());
+        System.out.println("启动时间："+processInstance.getStartTime());
+    }
+    @Test
+    public void listAllProcess(){
+        //创建Query查询对象 可以在这个对象后面调用各种方法实现条件查询，排序等
+        HistoricProcessInstanceQuery hisProcInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+        //不加查询条件
+        List<HistoricProcessInstance> processInstances = hisProcInstanceQuery.list();
+        for (HistoricProcessInstance processInstance : processInstances) {
+            System.out.println(processInstance.getId());
+            System.out.println(processInstance.getDeploymentId());
+            System.out.println(processInstance.getProcessDefinitionName());
+        }
+        //根据流程定义名称查询
+        List<HistoricProcessInstance> processInstances1 = hisProcInstanceQuery.processDefinitionName("我的流程").list();
+        //根据流程实例ID查询
+        HistoricProcessInstance processInstance = hisProcInstanceQuery.processInstanceId("2501").singleResult();
+        //查询未结束的流程
+        List<HistoricProcessInstance> processInstances2 = hisProcInstanceQuery.unfinished().list();
+        Assert.assertEquals(1, processInstances1.size());
+        Assert.assertNotNull(processInstance);
+        Assert.assertEquals(1, processInstances2.size());
+    }
+
+    @Test
+    public void getTask() {
+        //如果你的数据库中只有一条流程那么也是可以将list()改为singleResult()的
+        List<HistoricProcessInstance> processInstances = historyService
+                .createHistoricProcessInstanceQuery().unfinished().list();
+        List<Task> tasks = new ArrayList<>();
+        for (HistoricProcessInstance processInstance : processInstances) {
+            String processInstanceId = processInstance.getId();
+            Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).singleResult();
+            tasks.add(task);
+        }
+        tasks.forEach(task -> System.out.println(task.getName()));
+
+        for (Task task : tasks) {
+            //TaskService可以完成某个任务的审批，使流程流转到下一节点，比如用户申请审批完成后到达领导审批节点
+            taskService.complete(task.getId());
+            Task result = taskService.createTaskQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+            System.out.println(result.getName());
+        }
     }
 }
